@@ -91,12 +91,13 @@ async function loadSections() {
   main.appendChild(fragment);
 
   // Re-init behaviors
+  initCookieConsent()
   initClock();
   initReveal();
   initNavScroll();
   initTerminal();
   initChips();
-  initMesh();
+  initHeroCanvas();
   initScrollSpy();
 }
 
@@ -144,31 +145,31 @@ function initNavScroll() {
 }
 
 /* ── 4. AGENTIC TERMINAL SIMULATION (LOOPING) ── */
+/* ── TERMINAL: ENTECH DOMAIN COMMANDS ── */
 function initTerminal() {
   const termBody = document.getElementById('tb');
   if (!termBody) return;
 
   const staticLines = [
-    { text: 'vektör-agent init --target=local',                type: 'tcmd'  },
-    { text: 'Loading heuristic models...',                     type: 'tcmt'  },
-    { text: 'Models loaded. Injecting telemetry hooks.',       type: 'tok'   },
-    { text: 'Scanning exposed attack surface...',              type: 'tout'  },
-    { text: 'WARN: Unauthenticated endpoint detected (0x8F2A)', type: 'twarn' },
-    { text: 'Deploying Sentinël countermeasures...',           type: 'tcmd'  },
-    { text: 'Threat neutralized. Resuming autonomous patrol.', type: 'tok'   },
+    { text: 'entech-sync --init --satellite=GNSS',           type: 'tcmd'  },
+    { text: 'Locking orbital signals: GPS / GALILEO...',      type: 'tcmt'  },
+    { text: 'STRATUM-0 LOCKED. Accuracy: ±40ns',              type: 'tok'   },
+    { text: 'entech-forensics --ingest /dev/flight_data',    type: 'tcmd'  },
+    { text: 'Scanning telemetry packets for integrity...',    type: 'tout'  },
+    { text: 'CRITICAL: Packet drift detected at 0x44A1',      type: 'twarn' },
+    { text: 'Applying deterministic reconstruction...',       type: 'tcmd'  },
+    { text: 'Data integrity verified. Log exported.',         type: 'tok'   },
   ];
 
   const dynamicLines = [
-    { text: 'background-scan --module=stealth',                        type: 'tcmd' },
-    { text: 'Intercepting encrypted handshake (TLS 1.3)...',           type: 'tout' },
-    { text: 'Analyzing packet entropy... 0.988',                       type: 'tcmt' },
-    { text: "Match found in known attack pattern DB 'VEKTÖR-ALPHA'",   type: 'tok'  },
-    { text: 'shred --tmp-logs --force',                                type: 'tcmd' },
-    { text: 'Cleaning audit trails...',                                type: 'tcmt' },
-    { text: 'OK: All temporary traces eliminated.',                    type: 'tok'  },
-    { text: 'watch --status=active',                                   type: 'tcmd' },
-    { text: 'System heartbeat: 42ms | Load: 0.12',                     type: 'tout' },
-    { text: 'Listening on port 443 (SO_REUSEADDR)',                     type: 'tcmt' },
+    { text: 'url-analyze --depth=MAX --detect-spoof',        type: 'tcmd' },
+    { text: 'Resolving redirect chains...',                  type: 'tout' },
+    { text: 'Heuristic Match: Adversarial Payload Delivery',  type: 'twarn' },
+    { text: 'entech-monitor --active --heartbeat',           type: 'tcmd' },
+    { text: 'GNSS Signal Strength: 42dBHz [Excellent]',       type: 'tcmt' },
+    { text: 'System Uptime: 342 days | Integrity: 100%',     type: 'tok'  },
+    { text: 'watch-net --port=123 --protocol=NTP',           type: 'tcmd' },
+    { text: 'Monitoring sync requests... 0 errors.',         type: 'tout' },
   ];
 
   let lineIndex = 0;
@@ -176,11 +177,10 @@ function initTerminal() {
 
   function typeTerminal() {
     const lines = isInitial ? staticLines : dynamicLines;
-
     if (lineIndex >= lines.length) {
       lineIndex = 0;
       isInitial = false;
-      setTimeout(typeTerminal, 2000);
+      setTimeout(typeTerminal, 3000); // Wait before looping
       return;
     }
 
@@ -189,7 +189,7 @@ function initTerminal() {
     if (line.type === 'tcmd') {
       const promptSpan = document.createElement('span');
       promptSpan.className = 'tprompt';
-      promptSpan.textContent = 'agent@vektör:~$ ';
+      promptSpan.textContent = 'admin@entech:~$ ';
       termBody.appendChild(promptSpan);
 
       const cmdSpan = document.createElement('span');
@@ -207,7 +207,7 @@ function initTerminal() {
           termBody.scrollTop = termBody.scrollHeight;
           setTimeout(typeTerminal, 600);
         }
-      }, 50);
+      }, 40);
     } else {
       const span = document.createElement('span');
       span.className = line.type;
@@ -219,8 +219,117 @@ function initTerminal() {
       setTimeout(typeTerminal, 800);
     }
   }
-
   setTimeout(typeTerminal, 1500);
+}
+
+/* ── HERO CANVAS: RADAR / OSCILLOSCOPE EFFECT ── */
+function initHeroCanvas() {
+  const canvas = document.getElementById('hero-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  let w, h;
+  const setCanvasSize = () => {
+    const dpr = window.devicePixelRatio || 1;
+    w = window.innerWidth;
+    h = window.innerHeight;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.scale(dpr, dpr);
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+  };
+  
+  window.addEventListener('resize', setCanvasSize);
+  setCanvasSize();
+
+  let angle = 0;
+  const centerX = () => w * 0.5;
+  const centerY = () => h * 0.5;
+  const getRadius = () => Math.max(w, h) * 0.6;
+
+  // ── TARGET SYSTEM ──
+  // Generate random static targets in the coordinate space
+  const targets = Array.from({ length: 8 }, () => ({
+    x: (Math.random() - 0.5) * 1.5, // Normalized relative to center
+    y: (Math.random() - 0.5) * 1.5,
+    opacity: 0,
+    size: Math.random() * 3 + 2
+  }));
+
+  function draw() {
+    ctx.fillStyle = 'rgba(11, 14, 20, 0.15)'; 
+    ctx.fillRect(0, 0, w, h);
+
+    const cx = centerX();
+    const cy = centerY();
+    const r = getRadius();
+
+    // ── DRAW GRID ──
+    ctx.strokeStyle = 'rgba(96, 165, 250, 0.05)';
+    ctx.lineWidth = 1;
+    for(let i = 1; i <= 5; i++) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, (r / 5) * i, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+
+    // ── DRAW TARGETS ──
+    targets.forEach(target => {
+      const tx = cx + target.x * (r * 0.8);
+      const ty = cy + target.y * (r * 0.8);
+      
+      // Calculate angle to this specific target
+      const angleToTarget = Math.atan2(ty - cy, tx - cx);
+      const normalizedSweep = ((angle % (Math.PI * 2)) + (Math.PI * 2)) % (Math.PI * 2);
+      const normalizedTarget = ((angleToTarget % (Math.PI * 2)) + (Math.PI * 2)) % (Math.PI * 2);
+
+      // Check if sweep line is passing over target (within a small threshold)
+      if (Math.abs(normalizedSweep - normalizedTarget) < 0.05) {
+        target.opacity = 1.0; // Light up!
+      }
+
+      if (target.opacity > 0) {
+        ctx.beginPath();
+        ctx.arc(tx, ty, target.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(96, 165, 250, ${target.opacity})`;
+        ctx.shadowBlur = 10 * target.opacity;
+        ctx.shadowColor = 'rgba(96, 165, 250, 0.8)';
+        ctx.fill();
+        ctx.shadowBlur = 0; // Reset for next draws
+
+        // Fade out target slowly
+        target.opacity -= 0.005;
+      }
+    });
+
+    // ── DRAW RADAR SWEEP ──
+    let gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+    gradient.addColorStop(0, 'rgba(96, 165, 250, 0)');
+    gradient.addColorStop(1, 'rgba(96, 165, 250, 0.15)');
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, angle - 0.4, angle);
+    ctx.closePath();
+    ctx.fillStyle = gradient;
+    ctx.fill();
+
+    // ── THE ACTIVE SCAN LINE ──
+    const sweepX = cx + Math.cos(angle) * r;
+    const sweepY = cy + Math.sin(angle) * r;
+    
+    ctx.strokeStyle = 'rgba(96, 165, 250, 0.4)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(sweepX, sweepY);
+    ctx.stroke();
+
+    angle += 0.01;
+    requestAnimationFrame(draw);
+  }
+  draw();
 }
 
 /* ── 5. CONTACT FORM CHIP TOGGLES ── */
@@ -432,3 +541,87 @@ function updateActiveNavLink(id) {
     link.classList.toggle('active', isActive);
   });
 }
+
+function initCookieConsent() {
+  const overlay = document.getElementById('cookie-overlay');
+  const acceptBtn = document.getElementById('accept-cookies');
+  
+  if (!overlay || !acceptBtn) return;
+
+  // Check if already accepted
+  if (localStorage.getItem('entech_consent') === 'true') {
+    overlay.style.display = 'none';
+  } else {
+    // Show after a short delay for dramatic effect
+    setTimeout(() => {
+      overlay.classList.add('visible');
+    }, 1000);
+  }
+
+  acceptBtn.addEventListener('click', () => {
+    localStorage.setItem('entech_consent', 'true');
+    overlay.classList.remove('visible');
+    // Optional: play a subtle success sound or trigger the hero reveal
+    if (typeof playTechSound === 'function') playTechSound('ok');
+    
+    setTimeout(() => {
+      overlay.style.display = 'none';
+    }, 500);
+  });
+}
+
+/* --- Cookie Management Utility --- */
+const CookieManager = {
+    set: (name, value, days) => {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        const expires = "; expires=" + date.toUTCString();
+        document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Strict; Secure";
+    },
+    get: (name) => {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+};
+
+/* --- System Initialization Handler --- */
+function initSystemAccess() {
+    const overlay = document.getElementById('cookie-overlay');
+    const acceptBtn = document.getElementById('accept-cookies');
+    
+    // Check if the "System-Init" cookie exists
+    const isInitialized = CookieManager.get("entech_sys_init");
+
+    if (!isInitialized) {
+        // Lock the page
+        document.body.classList.add('system-locked');
+        overlay.classList.add('visible');
+    } else {
+        overlay.style.display = 'none';
+    }
+
+    acceptBtn.addEventListener('click', () => {
+        CookieManager.set("entech_sys_init", "verified", 30);
+        acceptBtn.innerText = "INITIALIZING...";
+        
+        setTimeout(() => {
+            overlay.classList.remove('visible');
+            document.body.classList.remove('system-locked');
+            
+            // This triggers the Radar effect only after the user accepts
+            if (typeof initHeroCanvas === 'function') initHeroCanvas();
+            if (typeof initTerminal === 'function') initTerminal();
+            
+            setTimeout(() => { overlay.style.display = 'none'; }, 500);
+        }, 800);
+    });
+}
+
+// Call this at the very top of your loadContent or DOMContentLoaded
+document.addEventListener('DOMContentLoaded', initSystemAccess);

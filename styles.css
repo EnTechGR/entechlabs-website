@@ -274,7 +274,8 @@ body::after {
   height: 100%;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.4;
+  opacity: 0.2;
+  object-fit: cover;
 }
 
 /* Ensure hero content sits above the canvas */
@@ -1146,4 +1147,129 @@ footer {
 
   .fl-links  { justify-content: center; }
   .divider   { margin: 0 22px; }
+}
+
+/* --- System Lock State --- */
+body.system-locked {
+  overflow: hidden; /* Prevent scrolling */
+  height: 100vh;
+}
+
+body.system-locked #nav,
+body.system-locked #site-main,
+body.system-locked footer {
+  filter: blur(8px) grayscale(100%); /* Visual feedback that site is inactive */
+  pointer-events: none; /* Disable all interactions */
+  user-select: none;
+}
+
+/* --- Cookie Banner --- */
+#cookie-overlay {
+  position: fixed;
+  inset: 0; /* Full screen to block interaction */
+  background: rgba(11, 14, 20, 0.8); /* Dark tint */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.5s var(--ease);
+  backdrop-filter: blur(4px);
+}
+
+#cookie-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.cb-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--accent-dim);
+  padding: 40px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+  position: relative;
+}
+
+/* Red-line aesthetic for high-stakes feel */
+.cb-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+
+.cookie-banner {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 380px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-med);
+  z-index: 9999;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  display: block;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s var(--ease), transform 0.4s var(--ease);
+  pointer-events: none;
+}
+
+.cookie-banner.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
+
+.cb-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.cb-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.cb-title {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.cb-text {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin-bottom: 20px;
+}
+
+.cb-link {
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.cb-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 500px) {
+  .cookie-banner {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    width: auto;
+  }
 }
