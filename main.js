@@ -643,24 +643,25 @@ document.addEventListener('click', (e) => {
     if (link) {
         const email = link.innerText.trim();
         
-        // 1. Attempt to copy to clipboard
-        navigator.clipboard.writeText(email).then(() => {
-            const originalText = link.innerHTML;
-            
-            // 2. Provide instant visual feedback
-            link.innerHTML = `<span style="color: var(--green)">ID COPIED TO CLIPBOARD</span>`;
-            
-            console.log("Protocol initialized & address buffered: " + email);
+        // 1. Check if navigator.clipboard exists (Security/HTTPS check)
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(email).then(() => {
+                const originalText = link.innerHTML;
+                
+                // Provide visual feedback
+                link.innerHTML = `<span style="color: var(--green)">ID COPIED TO CLIPBOARD</span>`;
+                console.log("Protocol initialized & address buffered: " + email);
 
-            // 3. Reset after 2 seconds
-            setTimeout(() => {
-                link.innerHTML = originalText;
-            }, 2000);
-        }).catch(err => {
-            console.error('Buffer error:', err);
-        });
-        
-        // Note: We don't preventDefault, so the browser still 
-        // attempts to open the mail app in the background.
+                setTimeout(() => {
+                    link.innerHTML = originalText;
+                }, 2000);
+            }).catch(err => {
+                console.error('Buffer error:', err);
+            });
+        } else {
+            // Fallback for non-HTTPS (HTTP) or unsupported browsers
+            console.warn("Clipboard API unavailable. Handing off to OS protocol only.");
+            // The browser will still attempt to open the mail app via the href
+        }
     }
 }, { capture: true });
