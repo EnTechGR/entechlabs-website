@@ -1,90 +1,85 @@
 <section id="products">
   <div class="si">
     <div class="sh">
-      <span class="label" data-reveal>What We Build</span>
+      <span class="label" data-reveal>The Deployment Suite</span>
       <h2 class="section-title" data-reveal data-d="1">
-        Tools shaped by <strong>how attackers actually think.</strong>
+        Hardened systems for <strong>uncompromising environments.</strong>
       </h2>
       <p class="section-desc" data-reveal data-d="2">
-        Three product lines spanning continuous threat monitoring, autonomous red-teaming, and open-source agent
-        security evaluation.
+        From sub-microsecond synchronization to post-incident telemetry analysis, we build the tools 
+        that keep mission-critical web and system infrastructure resilient.
       </p>
     </div>
 
     <div class="pg">
 
-      <!-- ── Sentinël ── -->
       <div class="pc" data-reveal data-d="2">
         <div class="pc-head">
           <div class="pc-icon">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
             </svg>
           </div>
-          <div class="pc-status s-live"><div class="ps-dot"></div>Live</div>
+          <div class="pc-status s-live"><div class="ps-dot"></div>Production</div>
         </div>
-        <div class="pc-mono">Sentinël</div>
-        <div class="pc-name">AI Threat Monitor</div>
+        <div class="pc-mono">Stratum-Sync</div>
+        <div class="pc-name">Satellite Time Provider</div>
         <p class="pc-desc">
-          Autonomous agent that continuously maps your attack surface, correlates live threat intelligence, and
-          generates prioritized remediation playbooks — without manual triage overhead.
+          A high-precision NTP/PTP server solution utilizing GNSS signals to deliver local, 
+          tamper-proof timing. Essential for distributed systems where network-based time is a vulnerability.
         </p>
         <ul class="pc-feats">
-          <li>Real-time CVE correlation against your exposed surface</li>
-          <li>AI-generated attack path simulation and risk scoring</li>
-          <li>Multi-cloud asset inventory and drift detection</li>
-          <li>Agentic integration with your existing SIEM</li>
+          <li>Stratum-0 hardware integration (GPS/GLONASS/Galileo)</li>
+          <li>Anti-jamming and signal spoofing detection</li>
+          <li>Sub-microsecond accuracy for financial & defense logs</li>
+          <li>Web-based dashboard for global cluster monitoring</li>
         </ul>
       </div>
 
-      <!-- ── Phrëak ── -->
       <div class="pc" data-reveal data-d="3">
         <div class="pc-head">
           <div class="pc-icon">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-              <path d="M4.93 4.93a10 10 0 0 0 0 14.14" />
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
             </svg>
           </div>
-          <div class="pc-status s-beta"><div class="ps-dot"></div>Beta</div>
+          <div class="pc-status s-beta"><div class="ps-dot"></div>Field Testing</div>
         </div>
-        <div class="pc-mono">Phrëak</div>
-        <div class="pc-name">Autonomous Red Team Agent</div>
+        <div class="pc-mono">BlackBox-FS</div>
+        <div class="pc-name">Flight & System Forensics</div>
         <p class="pc-desc">
-          LLM-powered penetration testing agent. Formulates objectives, chains exploits, escalates privileges, and
-          produces structured reports — with the judgment of a senior red teamer, at machine speed.
+          Specialized forensic engine designed to ingest and reconstruct complex telemetry. 
+          Built for flight data analysis and high-throughput system monitoring where data integrity is paramount.
         </p>
         <ul class="pc-feats">
-          <li>Goal-directed exploit planning and chaining</li>
-          <li>Adversarial prompt injection and tool-call testing</li>
-          <li>Autonomous lateral movement and pivot logic</li>
-          <li>Structured pentest report generation</li>
+          <li>Automated reconstruction of fragmented data streams</li>
+          <li>Secure cryptographic hashing for chain of custody</li>
+          <li>Real-time anomaly detection in black-box telemetry</li>
+          <li>Advanced visualization of sensor & system state</li>
         </ul>
       </div>
 
-      <!-- ── Vëktor SDK ── -->
       <div class="pc" data-reveal data-d="4">
         <div class="pc-head">
           <div class="pc-icon">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <polyline points="16 18 22 12 16 6" />
-              <polyline points="8 6 2 12 8 18" />
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
             </svg>
           </div>
-          <div class="pc-status s-oss"><div class="ps-dot"></div>Open Source</div>
+          <div class="pc-status s-oss"><div class="ps-dot"></div>Active Dev</div>
         </div>
-        <div class="pc-mono">Vëktor SDK</div>
-        <div class="pc-name">Agent Security Framework</div>
+        <div class="pc-mono">Vëktor-Link</div>
+        <div class="pc-name">Adversarial URL Analysis</div>
         <p class="pc-desc">
-          Open-source evaluation and hardening framework for AI agent deployments. Purpose-built for the attack
-          surfaces unique to agentic systems: tool-call hijacking, memory poisoning, multi-step injection.
+          A deep-inspection engine for web identifiers. We analyze redirect chains, payload delivery 
+          vectors, and URL masquerading techniques to prevent entry-point compromise.
         </p>
         <ul class="pc-feats">
-          <li>Comprehensive prompt injection benchmark suite</li>
-          <li>Tool-call hijack and privilege escalation tests</li>
-          <li>Agent sandboxing, monitoring, and observability</li>
-          <li>CI/CD integration for continuous agent security</li>
+          <li>Headless sandbox for dynamic redirect tracking</li>
+          <li>Heuristic scanning for zero-day phishing patterns</li>
+          <li>API-first design for enterprise firewall integration</li>
+          <li>Detailed threat mapping of URL-based attack surfaces</li>
         </ul>
       </div>
 
