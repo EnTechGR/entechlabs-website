@@ -15,54 +15,90 @@ const SECTIONS = [
   'contact',
 ];
 
+/* ── ROUTER & INITIALIZATION ── */
+async function loadContent() {
+  const main = document.getElementById('site-main');
+  const hash = window.location.hash;
+
+  // 1. Clear main to prevent stacking
+  main.innerHTML = '';
+
+  // 2. Clear all active nav highlights first to prevent "ghost" highlights
+  document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
+
+  if (hash === '#privacy') {
+    try {
+      const resp = await fetch('sections/privacy.html');
+      if (!resp.ok) throw new Error("Privacy page not found");
+      const html = await resp.text();
+      
+      const section = document.createElement('section');
+      section.className = 'si';
+      section.id = 'privacy-page';
+      section.innerHTML = html;
+      main.appendChild(section);
+      
+      initClock();
+      initNavScroll();
+      initReveal(); 
+      window.scrollTo(0, 0);
+    } catch (err) {
+      console.error(err);
+      window.location.hash = ''; 
+    }
+  } else {
+    // Load home sections
+    await loadSections();
+    
+    // 3. If the user clicked a specific section (e.g., #contact) from the Privacy page,
+    // scroll to it after the sections are injected.
+    if (hash && hash !== '#') {
+      const target = document.querySelector(hash);
+      if (target) {
+        target.scrollIntoView();
+        updateActiveNavLink(hash.substring(1));
+      }
+    }
+  }
+}
+
+window.addEventListener('hashchange', loadContent);
+window.addEventListener('DOMContentLoaded', loadContent);
+
+
+// Update your existing loadSections to be more modular
 async function loadSections() {
   const main = document.getElementById('site-main');
+  main.innerHTML = ''; // Clear previous content
 
-  // Fetch all partials in parallel
   const htmlChunks = await Promise.all(
     SECTIONS.map(name =>
-      fetch(`sections/${name}.html`)
-        .then(r => {
-          if (!r.ok) throw new Error(`Failed to load section: ${name} (${r.status})`);
-          return r.text();
-        })
-        .catch(err => {
-          console.warn(err);
-          return `<!-- section "${name}" could not be loaded -->`;
-        })
+      fetch(`sections/${name}.html`).then(r => r.text())
     )
   );
 
-  // Inject sections with dividers between them
   const fragment = document.createDocumentFragment();
-
   htmlChunks.forEach((html, i) => {
     const wrapper = document.createElement('div');
     wrapper.innerHTML = html.trim();
     while (wrapper.firstChild) fragment.appendChild(wrapper.firstChild);
-
-    // Insert divider after every section except the last
     if (i < htmlChunks.length - 1) {
       const divider = document.createElement('div');
       divider.className = 'divider';
       fragment.appendChild(divider);
     }
   });
-
   main.appendChild(fragment);
 
-  // Kick off all behaviours once the DOM is populated
+  // Re-init behaviors
   initClock();
   initReveal();
   initNavScroll();
   initTerminal();
   initChips();
   initMesh();
-  initSonification();
   initScrollSpy();
 }
-
-loadSections();
 
 /* ── 1. AGENTIC CLOCK ── */
 function initClock() {
@@ -366,16 +402,21 @@ function initScrollSpy() {
 
   const options = {
     root: null,
-    threshold: 0.2, // Trigger earlier when only 20% of the section is visible
-    rootMargin: "-25% 0px -25% 0px" // Focuses the "trigger zone" to the center 50% of the screen
+    threshold: 0.2,
+    rootMargin: "-25% 0px -25% 0px"
   };
 
   const observer = new IntersectionObserver((entries) => {
+    // Only run spy if we are NOT on the privacy page
+    if (window.location.hash === '#privacy') return;
+
     entries.forEach(entry => {
-      // Only update if the section is truly entering the viewport center
       if (entry.isIntersecting) {
         const id = entry.target.getAttribute('id');
-        history.replaceState(null, null, `#${id}`);
+        // Prevent unnecessary history noise if it's already the current hash
+        if(window.location.hash !== `#${id}`) {
+            history.replaceState(null, null, `#${id}`);
+        }
         updateActiveNavLink(id);
       }
     });
@@ -386,7 +427,7 @@ function initScrollSpy() {
 
 function updateActiveNavLink(id) {
   document.querySelectorAll('.nav-links a').forEach(link => {
-    // Exact match for the hash
+    // Match the href attribute to the section ID
     const isActive = link.getAttribute('href') === `#${id}`;
     link.classList.toggle('active', isActive);
   });
