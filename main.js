@@ -626,3 +626,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('accept-cookies');
     if (btn) btn.addEventListener('click', Gatekeeper.authorize);
 });
+
+// Force mailto links to work even if other scripts try to block them
+document.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href^="mailto:"]');
+    if (link) {
+        // We do NOT call preventDefault here. 
+        // We let the browser handle the protocol.
+        console.log("Initializing mailto protocol for: " + link.href);
+    }
+}, { capture: true });
+
+
+document.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href^="mailto:"]');
+    if (link) {
+        const email = link.innerText.trim();
+        
+        // 1. Attempt to copy to clipboard
+        navigator.clipboard.writeText(email).then(() => {
+            const originalText = link.innerHTML;
+            
+            // 2. Provide instant visual feedback
+            link.innerHTML = `<span style="color: var(--green)">ID COPIED TO CLIPBOARD</span>`;
+            
+            console.log("Protocol initialized & address buffered: " + email);
+
+            // 3. Reset after 2 seconds
+            setTimeout(() => {
+                link.innerHTML = originalText;
+            }, 2000);
+        }).catch(err => {
+            console.error('Buffer error:', err);
+        });
+        
+        // Note: We don't preventDefault, so the browser still 
+        // attempts to open the mail app in the background.
+    }
+}, { capture: true });

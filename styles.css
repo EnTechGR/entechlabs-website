@@ -1273,3 +1273,20 @@ body.system-locked footer {
     width: auto;
   }
 }
+
+.ch-val {
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: color 0.2s ease;
+  display: inline-block;
+}
+
+.ch-val:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+/* Ensure the container doesn't block the click */
+.ch {
+  cursor: default;
+}
