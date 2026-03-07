@@ -542,86 +542,87 @@ function updateActiveNavLink(id) {
   });
 }
 
-function initCookieConsent() {
-  const overlay = document.getElementById('cookie-overlay');
-  const acceptBtn = document.getElementById('accept-cookies');
-  
-  if (!overlay || !acceptBtn) return;
-
-  // Check if already accepted
-  if (localStorage.getItem('entech_consent') === 'true') {
-    overlay.style.display = 'none';
-  } else {
-    // Show after a short delay for dramatic effect
-    setTimeout(() => {
-      overlay.classList.add('visible');
-    }, 1000);
-  }
-
-  acceptBtn.addEventListener('click', () => {
-    localStorage.setItem('entech_consent', 'true');
-    overlay.classList.remove('visible');
-    // Optional: play a subtle success sound or trigger the hero reveal
-    if (typeof playTechSound === 'function') playTechSound('ok');
-    
-    setTimeout(() => {
-      overlay.style.display = 'none';
-    }, 500);
-  });
-}
-
-/* --- Cookie Management Utility --- */
-const CookieManager = {
-    set: (name, value, days) => {
-        const date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        const expires = "; expires=" + date.toUTCString();
-        document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Strict; Secure";
-    },
-    get: (name) => {
-        const nameEQ = name + "=";
-        const ca = document.cookie.split(';');
-        for (let i = 0; i < ca.length; i++) {
-            let c = ca[i];
-            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-            if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+/* ── CONSOLIDATED GATEKEEPER ── */
+const Gatekeeper = {
+    check: () => {
+        const consent = document.cookie.match(/^(.*;)?\s*entech_sys_init\s*=\s*[^;]+(.*)?$/);
+        const overlay = document.getElementById('cookie-overlay');
+        
+        if (!consent) {
+            document.body.classList.add('system-locked');
+            if (overlay) overlay.classList.add('visible');
+            return false;
+        } else {
+            if (overlay) overlay.style.display = 'none';
+            // If already consented, we can safely start background tasks
+            if (typeof initHeroCanvas === 'function') initHeroCanvas();
+            if (typeof initTerminal === 'function') initTerminal();
+            return true;
         }
-        return null;
-    }
-};
+    },
+    authorize: () => {
+        const overlay = document.getElementById('cookie-overlay');
+        const acceptBtn = document.getElementById('accept-cookies');
+        
+        // Set secure, SameSite=Strict cookie
+        const d = new Date();
+        d.setTime(d.getTime() + (30 * 24 * 60 * 60 * 1000));
+        document.cookie = `entech_sys_init=verified; expires=${d.toUTCString()}; path=/; SameSite=Strict; Secure`;
 
-/* --- System Initialization Handler --- */
-function initSystemAccess() {
-    const overlay = document.getElementById('cookie-overlay');
-    const acceptBtn = document.getElementById('accept-cookies');
-    
-    // Check if the "System-Init" cookie exists
-    const isInitialized = CookieManager.get("entech_sys_init");
-
-    if (!isInitialized) {
-        // Lock the page
-        document.body.classList.add('system-locked');
-        overlay.classList.add('visible');
-    } else {
-        overlay.style.display = 'none';
-    }
-
-    acceptBtn.addEventListener('click', () => {
-        CookieManager.set("entech_sys_init", "verified", 30);
         acceptBtn.innerText = "INITIALIZING...";
         
         setTimeout(() => {
             overlay.classList.remove('visible');
             document.body.classList.remove('system-locked');
             
-            // This triggers the Radar effect only after the user accepts
-            if (typeof initHeroCanvas === 'function') initHeroCanvas();
-            if (typeof initTerminal === 'function') initTerminal();
+            // Start the visual engine
+            initHeroCanvas();
+            initTerminal();
             
             setTimeout(() => { overlay.style.display = 'none'; }, 500);
         }, 800);
-    });
+    }
+};
+
+// Update your loadSections() to remove initCookieConsent()
+async function loadSections() {
+  const main = document.getElementById('site-main');
+  main.innerHTML = ''; 
+
+  const htmlChunks = await Promise.all(
+    SECTIONS.map(name => fetch(`sections/${name}.html`).then(r => r.text()))
+  );
+
+  const fragment = document.createDocumentFragment();
+  htmlChunks.forEach((html, i) => {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html.trim();
+    while (wrapper.firstChild) fragment.appendChild(wrapper.firstChild);
+    if (i < htmlChunks.length - 1) {
+      const div = document.createElement('div');
+      div.className = 'divider';
+      fragment.appendChild(div);
+    }
+  });
+  main.appendChild(fragment);
+
+  // RE-INIT BEHAVIORS (Removed initCookieConsent here)
+  initClock();
+  initReveal();
+  initNavScroll();
+  initChips();
+  initScrollSpy();
+  
+  // Only start these if the gate is already open
+  if (document.cookie.includes("entech_sys_init")) {
+      initHeroCanvas();
+      initTerminal();
+  }
 }
 
-// Call this at the very top of your loadContent or DOMContentLoaded
-document.addEventListener('DOMContentLoaded', initSystemAccess);
+// Initial entry point
+document.addEventListener('DOMContentLoaded', () => {
+    Gatekeeper.check();
+    const btn = document.getElementById('accept-cookies');
+    if (btn) btn.addEventListener('click', Gatekeeper.authorize);
+});
