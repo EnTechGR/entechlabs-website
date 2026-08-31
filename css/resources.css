@@ -1,0 +1,114 @@
+/* ══════════════════════════════════════════════
+   resources / RESEARCH
+   ══════════════════════════════════════════════ */
+#resources {
+  background: var(--bg);
+}
+
+.bl {
+  display: grid;
+  grid-template-columns: 1fr 290px;
+  grid-template-rows: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.bf {
+  grid-row: span 2;
+  background: var(--bg-raised);
+  padding: 38px 34px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 440px;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.bf:hover {
+  background: var(--bg-high);
+}
+
+.bf-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, transparent 25%, var(--bg-raised) 85%),
+    repeating-linear-gradient(-45deg,
+      rgba(59, 130, 246, .025) 0,
+      rgba(59, 130, 246, .025) 1px,
+      transparent 1px,
+      transparent 18px);
+  z-index: 0;
+  transition: opacity 0.3s;
+}
+
+.bf:hover .bf-bg { opacity: 0.7; }
+.bf > *          { position: relative; z-index: 1; }
+
+.bc {
+  background: var(--bg-raised);
+  padding: 26px 26px;
+  transition: background 0.2s;
+}
+
+.bc:hover {
+  background: var(--bg-high);
+}
+
+.bmeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.bcat {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.bdate {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.btitle {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--text-primary);
+  margin-bottom: 11px;
+}
+
+.bf .btitle { font-size: 1.75rem; margin-bottom: 14px; }
+.bc .btitle { font-size: 1.1rem; }
+
+.bexcerpt {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 18px;
+}
+
+.blink {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: gap 0.2s;
+}
+
+.bf:hover .blink,
+.bc:hover .blink { gap: 12px; }

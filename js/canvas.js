@@ -2,8 +2,8 @@
    ENTECH LABS — canvas.js
    ═══════════════════════════════════════════════ */
 
-function initHeroCanvas() {
-  const canvas = document.getElementById('hero-canvas');
+function initIntroCanvas() {
+  const canvas = document.getElementById('intro-canvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
 

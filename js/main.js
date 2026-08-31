@@ -8,7 +8,7 @@
    Dividers are inserted automatically between them.
    ─────────────────────────────────────────────── */
 const SECTIONS = [
-  'hero',
+  'intro',
   'products',
   'solutions',
   'docs',
@@ -60,10 +60,6 @@ async function loadContent() {
   }
 }
 
-
-window.addEventListener('DOMContentLoaded', loadContent);
-
-
 // Update your existing loadSections to be more modular
 async function loadSections() {
   const main = document.getElementById('site-main');
@@ -100,13 +96,13 @@ async function loadSections() {
   if (typeof initNavScroll === 'function') initNavScroll();
   if (typeof initChips === 'function') initChips();
   if (typeof initScrollSpy === 'function') initScrollSpy();
-  if (typeof initHeroCanvas === 'function') initHeroCanvas();
+  if (typeof initIntroCanvas === 'function') initIntroCanvas();
   if (typeof initTerminal === 'function') initTerminal();
 }
 
 /* ── 6. NEURAL MESH CANVAS BACKGROUND ── */
 function initMesh() {
-  const canvas = document.getElementById('hero-canvas');
+  const canvas = document.getElementById('intro-canvas');
   if (!canvas) return;
 
   const ctx = canvas.getContext('2d');
@@ -199,11 +195,17 @@ function initMesh() {
   }
 
   resizeCanvas();
-  window.addEventListener('resize', resizeCanvas, { passive: true });
+  // window.addEventListener('resize', resizeCanvas, { passive: true });
+  // window.addEventListener('mousemove', e => {
+  //   mouse.x = e.clientX;
+  //   mouse.y = e.clientY;
+  // }, { passive: true });
+
   window.addEventListener('mousemove', e => {
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
-  }, { passive: true });
+  const rect = canvas.getBoundingClientRect();
+  mouse.x = e.clientX - rect.left;
+  mouse.y = e.clientY - rect.top;
+}, { passive: true });
 
   particles = Array.from({ length: PARTICLE_COUNT }, () => new Particle());
   animate();
@@ -265,43 +267,6 @@ function initSonification() {
 }
 
 
-
-// Update your loadSections() to remove initCookieConsent()
-async function loadSections() {
-  const main = document.getElementById('site-main');
-  main.innerHTML = ''; 
-
-  const htmlChunks = await Promise.all(
-    SECTIONS.map(name => fetch(`./sections/${name}.html`).then(r => r.text()))
-  );
-
-  const fragment = document.createDocumentFragment();
-  htmlChunks.forEach((html, i) => {
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = html.trim();
-    while (wrapper.firstChild) fragment.appendChild(wrapper.firstChild);
-    if (i < htmlChunks.length - 1) {
-      const div = document.createElement('div');
-      div.className = 'divider';
-      fragment.appendChild(div);
-    }
-  });
-  main.appendChild(fragment);
-
-  // RE-INIT BEHAVIORS (Removed initCookieConsent here)
-  initClock();
-  initReveal();
-  initNavScroll();
-  initChips();
-  initScrollSpy();
-  
-  // Only start these if the gate is already open
-  if (document.cookie.includes("entech_sys_init")) {
-      initHeroCanvas();
-      initTerminal();
-  }
-}
-
 async function initCookieConsentEngine() {
   const wrapper = document.getElementById('cookie-wrapper');
   if (!wrapper) return;
@@ -327,37 +292,10 @@ async function initCookieConsentEngine() {
   }
 }
 
+/* ── ROUTER & INITIALIZATION LISTENERS ── */
 window.addEventListener('hashchange', loadContent);
+
 document.addEventListener('DOMContentLoaded', () => {
   loadContent();
   initCookieConsentEngine();
 });
-
-
-document.addEventListener('click', (e) => {
-    const link = e.target.closest('a[href^="mailto:"]');
-    if (link) {
-        const email = link.innerText.trim();
-        
-        // 1. Check if navigator.clipboard exists (Security/HTTPS check)
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(email).then(() => {
-                const originalText = link.innerHTML;
-                
-                // Provide visual feedback
-                link.innerHTML = `<span style="color: var(--green)">ID COPIED TO CLIPBOARD</span>`;
-                console.log("Protocol initialized & address buffered: " + email);
-
-                setTimeout(() => {
-                    link.innerHTML = originalText;
-                }, 2000);
-            }).catch(err => {
-                console.error('Buffer error:', err);
-            });
-        } else {
-            // Fallback for non-HTTPS (HTTP) or unsupported browsers
-            console.warn("Clipboard API unavailable. Handing off to OS protocol only.");
-            // The browser will still attempt to open the mail app via the href
-        }
-    }
-}, { capture: true });

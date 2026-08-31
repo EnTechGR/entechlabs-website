@@ -1,0 +1,117 @@
+/* ══════════════════════════════════════════════
+   PRODUCTS
+   ══════════════════════════════════════════════ */
+#products {
+  background: var(--bg-raised);
+}
+
+.pg {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.pc {
+  background: var(--bg-raised);
+  padding: 34px 30px;
+  display: flex;
+  flex-direction: column;
+  transition: background 0.2s;
+}
+
+.pc:hover {
+  background: var(--bg-high);
+}
+
+.pc-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 26px;
+}
+
+.pc-icon {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border-med);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.pc-status {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.s-live { color: var(--green); }
+.s-beta { color: var(--amber); }
+.s-oss  { color: var(--accent); }
+
+.ps-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.pc-mono {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 5px;
+}
+
+.pc-name {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+
+.pc-desc {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.75;
+  flex: 1;
+  margin-bottom: 24px;
+}
+
+.pc-feats {
+  list-style: none;
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pc-feats li {
+  display: flex;
+  gap: 9px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.pc-feats li::before {
+  content: '—';
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}

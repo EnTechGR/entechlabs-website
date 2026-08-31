@@ -1,0 +1,54 @@
+/* ══════════════════════════════════════════════
+   FOOTER
+   ══════════════════════════════════════════════ */
+footer {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  padding: 36px 48px;
+}
+
+.fi {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.fw {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  letter-spacing: 0.13em;
+  color: var(--text-primary);
+}
+
+.fw b {
+  color: var(--accent);
+  font-weight: 400;
+}
+
+.fc-copy {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.fl-links {
+  display: flex;
+  gap: 22px;
+  list-style: none;
+}
+
+.fl-links a {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  transition: color 0.2s;
+}
+
+.fl-links a:hover {
+  color: var(--text-primary);
+}

@@ -1,0 +1,208 @@
+/* ═══════════════════════════════════════════════
+   SECTION: CONTACT (CORPORATE INDUSTRY STANDARD)
+   ═══════════════════════════════════════════════ */
+
+#contact {
+  background: var(--bg-raised, #0b1329);
+  padding: 80px 0;
+}
+
+.cl {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 64px;
+  align-items: start;
+}
+
+.ci-body {
+  font-size: 1.05rem;
+  color: var(--text-secondary, #94a3b8);
+  line-height: 1.7;
+  margin-bottom: 32px;
+}
+
+/* Communication Channels */
+.channels {
+  display: flex;
+  flex-direction: column;
+}
+
+.ch {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  padding: 16px 0;
+  border-top: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+}
+
+.ch-icon {
+  color: var(--accent, #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.ch-lbl {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-tertiary, #64748b);
+  margin-bottom: 4px;
+}
+
+.ch-val {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-primary, #f8fafc);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.ch-val:hover {
+  color: var(--accent, #3b82f6);
+}
+
+/* Form Styling */
+.cf {
+  background: var(--bg-high, rgba(15, 23, 42, 0.6));
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  border-radius: var(--radius, 8px);
+  padding: 32px;
+}
+
+.cf-legend {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary, #64748b);
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+}
+
+.fg {
+  margin-bottom: 20px;
+}
+
+.fr {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.fl {
+  display: block;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary, #64748b);
+  margin-bottom: 8px;
+}
+
+.fc {
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--bg, #020617);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--radius, 6px);
+  color: var(--text-primary, #f8fafc);
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: 0.9rem;
+  padding: 12px 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.fc:focus {
+  border-color: var(--accent, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.fc::placeholder {
+  color: var(--text-tertiary, #475569);
+}
+
+textarea.fc {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* Form Interactive Chips */
+.chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  cursor: pointer;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+  color: var(--text-secondary, #94a3b8);
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.chip:hover,
+.chip.on {
+  border-color: var(--accent, #3b82f6);
+  color: #ffffff;
+  background: rgba(59, 130, 246, 0.15);
+}
+
+/* Submit Action Button */
+.btn-send {
+  width: 100%;
+  cursor: pointer;
+  background: var(--accent, #3b82f6);
+  color: #ffffff;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 14px;
+  border-radius: var(--radius, 6px);
+  border: none;
+  margin-top: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-send:hover {
+  background: #2563eb;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+  transform: translateY(-1px);
+}
+
+.ch-val {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.ch-val.copied {
+  color: var(--accent, #3b82f6);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Responsive Breakpoint */
+@media (max-width: 868px) {
+  .cl {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .fr {
+    grid-template-columns: 1fr;
+  }
+}
