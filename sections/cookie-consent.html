@@ -1,0 +1,32 @@
+<div id="cookie-banner" class="cookie-modal hidden" role="dialog" aria-modal="true" aria-labelledby="cookie-title">
+  <div class="cookie-content">
+    <h3 id="cookie-title">Privacy & Cookie Preferences</h3>
+    <p>
+      We use cookies and similar technologies to enhance performance, analyze operational traffic, and deliver personalized telemetry. 
+      Analytics cookies are only enabled with your explicit consent under GDPR guidelines.
+    </p>
+
+    <div class="cookie-options">
+      <label class="cookie-option">
+        <input type="checkbox" id="cookie-necessary" checked disabled />
+        <span><strong>Essential</strong> (Required for system operational state & navigation)</span>
+      </label>
+      
+      <label class="cookie-option">
+        <input type="checkbox" id="cookie-analytics" />
+        <span><strong>Analytics</strong> (Usage telemetry & anonymous performance metrics)</span>
+      </label>
+
+      <label class="cookie-option">
+        <input type="checkbox" id="cookie-marketing" />
+        <span><strong>Marketing</strong> (Targeted communications & campaign measurement)</span>
+      </label>
+    </div>
+
+    <div class="cookie-actions">
+      <button id="btn-cookie-reject" class="btn btn-secondary">Reject Non-Essential</button>
+      <button id="btn-cookie-save" class="btn btn-secondary">Save Preferences</button>
+      <button id="btn-cookie-accept" class="btn btn-primary">Accept All</button>
+    </div>
+  </div>
+</div>
