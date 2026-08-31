@@ -1,32 +1,61 @@
-<div id="cookie-banner" class="cookie-modal hidden" role="dialog" aria-modal="true" aria-labelledby="cookie-title">
+<div class="cookie-modal" id="cookieModal">
   <div class="cookie-content">
-    <h3 id="cookie-title">Privacy & Cookie Preferences</h3>
+    <h3>
+      <span class="cookie-icon">🛡️</span> Privacy Preferences
+    </h3>
     <p>
-      We use cookies and similar technologies to enhance performance, analyze operational traffic, and deliver personalized telemetry. 
-      Analytics cookies are only enabled with your explicit consent under GDPR guidelines.
+      We use cookies to optimize system navigation, analyze site traffic, and enhance performance. 
+      You can manage your choices below or accept our default settings.
     </p>
 
-    <div class="cookie-options">
-      <label class="cookie-option">
-        <input type="checkbox" id="cookie-necessary" checked disabled />
-        <span><strong>Essential</strong> (Required for system operational state & navigation)</span>
-      </label>
-      
-      <label class="cookie-option">
-        <input type="checkbox" id="cookie-analytics" />
-        <span><strong>Analytics</strong> (Usage telemetry & anonymous performance metrics)</span>
-      </label>
+    <!-- Collapsible Cookie Preferences Drawer -->
+    <details class="cookie-drawer">
+      <summary class="cookie-drawer-trigger">
+        <span>Customize Cookie Preferences</span>
+        <span class="chevron">▼</span>
+      </summary>
 
-      <label class="cookie-option">
-        <input type="checkbox" id="cookie-marketing" />
-        <span><strong>Marketing</strong> (Targeted communications & campaign measurement)</span>
-      </label>
-    </div>
+      <div class="cookie-options">
+        <!-- Necessary Cookies (Always Active) -->
+        <label class="cookie-option">
+          <input type="checkbox" checked disabled />
+          <div class="option-text">
+            <strong>Strictly Necessary</strong>
+            <p>Required for basic security, routing, and system functionality. Cannot be disabled.</p>
+          </div>
+        </label>
 
+        <!-- Analytics Cookies (Default Unchecked for GDPR Compliance) -->
+        <label class="cookie-option">
+          <input type="checkbox" id="cookie-analytics" />
+          <div class="option-text">
+            <strong>Analytics & Performance</strong>
+            <p>Helps us analyze site traffic and improve performance metrics via anonymized data.</p>
+          </div>
+        </label>
+
+        <!-- Functionality / Preferences -->
+        <label class="cookie-option">
+          <input type="checkbox" id="cookie-functional" />
+          <div class="option-text">
+            <strong>Preferences & Customization</strong>
+            <p>Saves your settings, preferred dark mode settings, and user interface options.</p>
+          </div>
+        </label>
+      </div>
+    </details>
+
+    <!-- Action Buttons -->
     <div class="cookie-actions">
-      <button id="btn-cookie-reject" class="btn btn-secondary">Reject Non-Essential</button>
-      <button id="btn-cookie-save" class="btn btn-secondary">Save Preferences</button>
-      <button id="btn-cookie-accept" class="btn btn-primary">Accept All</button>
+      <button type="button" class="btn btn-secondary" id="btn-reject-cookies">
+        Essential Only
+      </button>
+      <button type="button" class="btn btn-secondary hidden" id="btn-save-cookies">
+        Save Selection
+      </button>
+      <button type="button" class="btn btn-primary" id="btn-accept-all">
+        Accept All
+      </button>
     </div>
   </div>
 </div>
