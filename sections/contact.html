@@ -62,36 +62,154 @@
       </div>
 
       <!-- Right Column: Interactive Form -->
-      <form class="cf" data-reveal data-d="3" action="#" method="POST" onsubmit="event.preventDefault();">
+      <form class="cf" id="contact-form" data-reveal data-d="3">
+
         <div class="cf-legend">Send a Message</div>
 
+        <!-- Honeypot: invisible to normal users, useful against simple bots -->
+        <div class="hp-field" aria-hidden="true">
+          <label for="website">Website</label>
+          <input
+            type="text"
+            id="website"
+            name="website"
+            tabindex="-1"
+            autocomplete="off"
+          />
+        </div>
+
         <div class="fg fr">
+
           <div>
             <label for="contact-name" class="fl">Name</label>
-            <input type="text" id="contact-name" class="fc" placeholder="Jane Doe" required />
+
+            <input
+              type="text"
+              id="contact-name"
+              name="name"
+              class="fc"
+              placeholder="Jane Doe"
+              maxlength="100"
+              autocomplete="name"
+              required
+            />
           </div>
+
           <div>
             <label for="contact-email" class="fl">Work Email</label>
-            <input type="email" id="contact-email" class="fc" placeholder="jane@company.com" required />
+
+            <input
+              type="email"
+              id="contact-email"
+              name="email"
+              class="fc"
+              placeholder="jane@company.com"
+              maxlength="254"
+              autocomplete="email"
+              required
+            />
           </div>
+
         </div>
 
+
         <div class="fg">
+
           <label class="fl">Inquiry Type</label>
+
           <div class="chips">
-            <button type="button" class="chip on">Sales & Licensing</button>
-            <button type="button" class="chip">Technical Support</button>
-            <button type="button" class="chip">Security / Disclosure</button>
-            <button type="button" class="chip">General Inquiry</button>
+
+            <button
+              type="button"
+              class="chip on"
+              data-value="Sales & Licensing"
+            >
+              Sales & Licensing
+            </button>
+
+            <button
+              type="button"
+              class="chip"
+              data-value="Technical Support"
+            >
+              Technical Support
+            </button>
+
+            <button
+              type="button"
+              class="chip"
+              data-value="Security / Disclosure"
+            >
+              Security / Disclosure
+            </button>
+
+            <button
+              type="button"
+              class="chip"
+              data-value="General Inquiry"
+            >
+              General Inquiry
+            </button>
+
           </div>
+
+          <input
+            type="hidden"
+            id="inquiry-type"
+            name="inquiry_type"
+            value="Sales & Licensing"
+          />
+
         </div>
+
 
         <div class="fg">
-          <label for="contact-message" class="fl">Message</label>
-          <textarea id="contact-message" class="fc" placeholder="Describe your technical requirements or project details..." required></textarea>
+
+          <label for="contact-message" class="fl">
+            Message
+          </label>
+
+          <textarea
+            id="contact-message"
+            name="message"
+            class="fc"
+            placeholder="Describe your technical requirements or project details..."
+            maxlength="5000"
+            required
+          ></textarea>
+
         </div>
 
-        <button type="submit" class="btn-send">Submit Message</button>
+
+        <!-- Cloudflare Turnstile -->
+
+        <div class="turnstile-wrapper">
+
+          <div
+            class="cf-turnstile"
+            data-sitekey="0x4AAAAAAEkQSDCdzsLE1A8n"
+            data-action="contact"
+          ></div>
+
+        </div>
+
+
+        <button
+          type="submit"
+          class="btn-send"
+          id="contact-submit"
+        >
+          Submit Message
+        </button>
+
+
+        <div
+          id="contact-status"
+          class="contact-status"
+          role="status"
+          aria-live="polite"
+        ></div>
+
       </form>
     </div>
   </div>

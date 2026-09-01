@@ -206,3 +206,39 @@ textarea.fc {
     grid-template-columns: 1fr;
   }
 }
+
+/*
+ * Contact form security / status
+ */
+
+.hp-field {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+}
+
+.turnstile-wrapper {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.contact-status {
+  margin-top: 1rem;
+  min-height: 1.5em;
+  font-size: 0.9rem;
+}
+
+.contact-status.success {
+  /* Use your existing success color */
+}
+
+.contact-status.error {
+  /* Use your existing error color */
+}
+
+.btn-send:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
