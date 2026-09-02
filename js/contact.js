@@ -1,363 +1,628 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener(
+  'DOMContentLoaded',
+  () => {
 
-  /*
-   * ============================================================
-   * EMAIL ADDRESS COPY
-   * ============================================================
-   */
+    /*
+     * ======================================================
+     * EMAIL COPY LINKS
+     * ======================================================
+     */
 
-  const emailElements = document.querySelectorAll('.ch-val');
+    const emailElements =
+      document.querySelectorAll(
+        '.ch-val'
+      );
 
-  emailElements.forEach((el) => {
 
-    if (el.href && el.href.startsWith('mailto:')) {
+    emailElements.forEach(
+      (el) => {
 
-      el.addEventListener('click', async (e) => {
+        if (
+          el.href &&
+          el.href.startsWith(
+            'mailto:'
+          )
+        ) {
 
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
+          el.addEventListener(
+            'click',
+            async (e) => {
 
-        const emailToCopy =
-          el.href.replace('mailto:', '').trim();
+              e.preventDefault();
+              e.stopPropagation();
+              e.stopImmediatePropagation();
 
-        const originalEmail = el.textContent;
 
-        if (el.dataset.copying === 'true') {
-          return;
+              const emailToCopy =
+                el.href
+                  .replace(
+                    'mailto:',
+                    ''
+                  )
+                  .trim();
+
+
+              const originalEmail =
+                el.textContent;
+
+
+              if (
+                el.dataset.copying ===
+                'true'
+              ) {
+
+                return;
+
+              }
+
+
+              try {
+
+                await navigator
+                  .clipboard
+                  .writeText(
+                    emailToCopy
+                  );
+
+
+                el.dataset.copying =
+                  'true';
+
+
+                el.textContent =
+                  'EMAIL COPIED TO CLIPBOARD';
+
+
+                el.classList.add(
+                  'copied'
+                );
+
+
+                setTimeout(
+                  () => {
+
+                    el.textContent =
+                      originalEmail;
+
+                    el.classList.remove(
+                      'copied'
+                    );
+
+                    delete el.dataset
+                      .copying;
+
+                  },
+
+                  2000
+                );
+
+
+              } catch (err) {
+
+                console.error(
+                  'Copy failed:',
+                  err
+                );
+
+
+                el.textContent =
+                  'FAILED TO COPY';
+
+
+                setTimeout(
+                  () => {
+
+                    el.textContent =
+                      originalEmail;
+
+                  },
+
+                  2000
+                );
+
+              }
+
+            },
+
+            true
+          );
+
         }
+
+      }
+    );
+
+
+    /*
+     * ======================================================
+     * CONTACT FORM
+     * ======================================================
+     */
+
+    const form =
+      document.querySelector(
+        '.cf'
+      );
+
+
+    if (!form) {
+
+      console.warn(
+        'Contact form not found.'
+      );
+
+      return;
+
+    }
+
+
+    /*
+     * Inquiry type chips
+     */
+
+    const chips =
+      form.querySelectorAll(
+        '.chip'
+      );
+
+
+    let selectedInquiryType =
+      'Sales & Licensing';
+
+
+    chips.forEach(
+      (chip) => {
+
+        chip.addEventListener('click', () => {
+
+          chips.forEach((item) => {
+            item.classList.remove('on');
+          });
+
+          chip.classList.add('on');
+
+          selectedInquiryType =
+            chip.dataset.value ||
+            chip.textContent.trim();
+
+          const inquiryTypeInput =
+            document.getElementById('inquiry-type');
+
+          if (inquiryTypeInput) {
+            inquiryTypeInput.value =
+              selectedInquiryType;
+          }
+
+        });
+
+      }
+    );
+
+
+    /*
+     * ======================================================
+     * STATUS MESSAGE
+     * ======================================================
+     */
+
+    const submitButton =
+      form.querySelector(
+        '.btn-send'
+      );
+
+
+    const statusElement =
+      document.createElement(
+        'div'
+      );
+
+
+    statusElement.className =
+      'contact-form-status';
+
+
+    statusElement.setAttribute(
+      'role',
+      'status'
+    );
+
+
+    statusElement.setAttribute(
+      'aria-live',
+      'polite'
+    );
+
+
+    submitButton.insertAdjacentElement(
+      'afterend',
+      statusElement
+    );
+
+
+    function setStatus(
+      message,
+      type
+    ) {
+
+      statusElement.textContent =
+        message;
+
+      statusElement.dataset.status =
+        type;
+
+    }
+
+
+    /*
+     * ======================================================
+     * FORM SUBMISSION
+     * ======================================================
+     */
+
+    form.addEventListener(
+      'submit',
+      async (event) => {
+
+        event.preventDefault();
+
+
+        /*
+         * Prevent double submission.
+         */
+
+        if (
+          submitButton.disabled
+        ) {
+
+          return;
+
+        }
+
+
+        /*
+         * --------------------------------------------------
+         * READ FORM
+         * --------------------------------------------------
+         */
+
+        const name =
+          document
+            .getElementById(
+              'contact-name'
+            )
+            ?.value
+            ?.trim() || '';
+
+
+        const email =
+          document
+            .getElementById(
+              'contact-email'
+            )
+            ?.value
+            ?.trim() || '';
+
+
+        const message =
+          document
+            .getElementById(
+              'contact-message'
+            )
+            ?.value
+            ?.trim() || '';
+
+
+        const website =
+          document
+            .getElementById(
+              'contact-website'
+            )
+            ?.value
+            ?.trim() || '';
+
+
+        /*
+         * --------------------------------------------------
+         * HTML5 VALIDATION
+         * --------------------------------------------------
+         */
+
+        if (
+          !form.checkValidity()
+        ) {
+
+          form.reportValidity();
+
+          return;
+
+        }
+
+
+        /*
+         * --------------------------------------------------
+         * TURNSTILE TOKEN
+         * --------------------------------------------------
+         */
+
+        const turnstileElement =
+          document.querySelector(
+            '[name="cf-turnstile-response"]'
+          );
+
+
+        const turnstileToken =
+          turnstileElement
+            ?.value
+            ?.trim() || '';
+
+
+        if (!turnstileToken) {
+
+          setStatus(
+            'Please complete the security verification and try again.',
+            'error'
+          );
+
+          return;
+
+        }
+
+
+        /*
+         * --------------------------------------------------
+         * UI: SENDING
+         * --------------------------------------------------
+         */
+
+        submitButton.disabled =
+          true;
+
+
+        const originalButtonText =
+          submitButton.textContent;
+
+
+        submitButton.textContent =
+          'Sending...';
+
+
+        setStatus(
+          'Sending your message...',
+          'sending'
+        );
+
+
+        /*
+         * --------------------------------------------------
+         * SEND TO CLOUDFLARE WORKER
+         * --------------------------------------------------
+         *
+         * IMPORTANT:
+         * Replace this URL with your actual
+         * Cloudflare Worker URL.
+         *
+         * Example:
+         *
+         * https://contact-api.entechlabs.com
+         *
+         * or:
+         *
+         * https://your-worker.your-subdomain.workers.dev
+         * --------------------------------------------------
+         */
+
+        const WORKER_URL =
+          'https://api.entechlabs.com';
+
 
         try {
 
-          await navigator.clipboard.writeText(emailToCopy);
+          const response =
+            await fetch(
+              WORKER_URL,
+              {
+                method: 'POST',
 
-          el.dataset.copying = 'true';
-          el.textContent = 'EMAIL COPIED TO CLIPBOARD';
-          el.classList.add('copied');
+                headers: {
+                  'Content-Type':
+                    'application/json'
+                },
 
-          setTimeout(() => {
+                body:
+                  JSON.stringify({
 
-            el.textContent = originalEmail;
-            el.classList.remove('copied');
-            delete el.dataset.copying;
+                    name,
 
-          }, 2000);
+                    email,
 
-        } catch (err) {
+                    inquiry_type:
+                      selectedInquiryType,
 
-          console.error('Copy failed:', err);
+                    message,
 
-          el.textContent = 'FAILED TO COPY';
+                    website,
 
-          setTimeout(() => {
-            el.textContent = originalEmail;
-          }, 2000);
+                    turnstile_token:
+                      turnstileToken
+
+                  })
+              }
+            );
+
+
+          /*
+           * ------------------------------------------------
+           * READ RESPONSE
+           * ------------------------------------------------
+           */
+
+          let result;
+
+          try {
+
+            result =
+              await response.json();
+
+          } catch {
+
+            result = {};
+
+          }
+
+
+          /*
+           * ------------------------------------------------
+           * WORKER ERROR
+           * ------------------------------------------------
+           */
+
+          if (
+            !response.ok ||
+            result.success !== true
+          ) {
+
+            throw new Error(
+              result.error ||
+              'Unable to send your message.'
+            );
+
+          }
+
+
+          /*
+           * ------------------------------------------------
+           * SUCCESS
+           *
+           * This happens ONLY when:
+           *
+           * Browser
+           *   ↓
+           * Worker
+           *   ↓
+           * Turnstile ✓
+           *   ↓
+           * Apps Script ✓
+           *   ↓
+           * GmailApp ✓
+           *   ↓
+           * HTTP success
+           * ------------------------------------------------
+           */
+
+          setStatus(
+            'Message sent successfully. We will get back to you soon.',
+            'success'
+          );
+
+
+          form.reset();
+
+
+          /*
+           * Restore default inquiry type.
+           */
+
+          chips.forEach(
+            (chip) => {
+
+              chip.classList.remove(
+                'on'
+              );
+
+            }
+          );
+
+
+          if (chips[0]) {
+
+            chips[0].classList.add(
+              'on'
+            );
+
+          }
+
+
+          selectedInquiryType =
+            'Sales & Licensing';
+
+
+          /*
+           * Reset Turnstile.
+           */
+
+          if (
+            window.turnstile
+          ) {
+
+            try {
+
+              window.turnstile.reset();
+
+            } catch (error) {
+
+              console.warn(
+                'Turnstile reset failed:',
+                error
+              );
+
+            }
+
+          }
+
+
+        } catch (error) {
+
+          console.error(
+            'Contact form error:',
+            error
+          );
+
+
+          setStatus(
+            error.message ||
+            'We could not send your message. Please try again later.',
+            'error'
+          );
+
+
+          /*
+           * Turnstile tokens are
+           * generally single-use.
+           * Reset after a failed submission.
+           */
+
+          if (
+            window.turnstile
+          ) {
+
+            try {
+
+              window.turnstile.reset();
+
+            } catch (resetError) {
+
+              console.warn(
+                'Turnstile reset failed:',
+                resetError
+              );
+
+            }
+
+          }
+
+
+        } finally {
+
+          submitButton.disabled =
+            false;
+
+          submitButton.textContent =
+            originalButtonText;
 
         }
 
-      }, true);
-
-    }
-
-  });
-
-
-  /*
-   * ============================================================
-   * CONTACT FORM
-   * ============================================================
-   */
-
-  const form = document.getElementById('contact-form');
-
-  if (!form) {
-    return;
-  }
-
-
-  const inquiryInput =
-    document.getElementById('inquiry-type');
-
-  const submitButton =
-    document.getElementById('contact-submit');
-
-  const statusElement =
-    document.getElementById('contact-status');
-
-
-  /*
-   * ============================================================
-   * INQUIRY TYPE CHIPS
-   * ============================================================
-   */
-
-  const chips = form.querySelectorAll('.chip');
-
-  chips.forEach((chip) => {
-
-    chip.addEventListener('click', () => {
-
-      chips.forEach((item) => {
-        item.classList.remove('on');
-      });
-
-      chip.classList.add('on');
-
-      inquiryInput.value =
-        chip.dataset.value;
-
-    });
-
-  });
-
-
-  /*
-   * ============================================================
-   * STATUS HELPER
-   * ============================================================
-   */
-
-  function setStatus(message, type = '') {
-
-    statusElement.textContent = message;
-
-    statusElement.className =
-      'contact-status';
-
-    if (type) {
-      statusElement.classList.add(type);
-    }
+      }
+    );
 
   }
-
-
-  /*
-   * ============================================================
-   * SUBMIT
-   * ============================================================
-   */
-
-  form.addEventListener('submit', async (event) => {
-
-    event.preventDefault();
-
-
-    /*
-     * Client-side validation
-     */
-
-    const name =
-      document.getElementById('contact-name')
-        .value.trim();
-
-    const email =
-      document.getElementById('contact-email')
-        .value.trim();
-
-    const message =
-      document.getElementById('contact-message')
-        .value.trim();
-
-    const inquiryType =
-      inquiryInput.value;
-
-    const honeypot =
-      document.getElementById('website')
-        .value.trim();
-
-
-    if (!name || !email || !message) {
-
-      setStatus(
-        'Please complete all required fields.',
-        'error'
-      );
-
-      return;
-    }
-
-
-    /*
-     * Honeypot
-     *
-     * A real user should never fill this field.
-     */
-
-    if (honeypot) {
-
-      setStatus(
-        'Unable to submit the form.',
-        'error'
-      );
-
-      return;
-    }
-
-
-    /*
-     * Get Turnstile token
-     */
-
-    const turnstileInput =
-      form.querySelector(
-        '[name="cf-turnstile-response"]'
-      );
-
-    const turnstileToken =
-      turnstileInput
-        ? turnstileInput.value
-        : '';
-
-
-    if (!turnstileToken) {
-
-      setStatus(
-        'Please complete the security verification.',
-        'error'
-      );
-
-      return;
-    }
-
-
-    /*
-     * Disable button while sending
-     */
-
-    submitButton.disabled = true;
-
-    submitButton.textContent =
-      'Sending...';
-
-    setStatus('');
-
-
-    try {
-
-      const response = await fetch(
-        'https://api.entechlabs.com/contact',
-        {
-          method: 'POST',
-
-          headers: {
-            'Content-Type': 'application/json'
-          },
-
-          body: JSON.stringify({
-            name,
-            email,
-            inquiry_type: inquiryType,
-            message,
-            website: honeypot,
-            turnstile_token: turnstileToken
-          })
-        }
-      );
-
-
-      let result = {};
-
-      try {
-        result = await response.json();
-      } catch {
-        result = {};
-      }
-
-
-      if (!response.ok) {
-
-        throw new Error(
-          result.error ||
-          'Unable to send your message.'
-        );
-
-      }
-
-
-      /*
-       * SUCCESS
-       */
-
-      setStatus(
-        'Your message has been sent successfully. We will get back to you shortly.',
-        'success'
-      );
-
-
-      form.reset();
-
-
-      /*
-       * Restore default inquiry type
-       */
-
-      inquiryInput.value =
-        'Sales & Licensing';
-
-      chips.forEach((chip) => {
-
-        chip.classList.toggle(
-          'on',
-          chip.dataset.value ===
-            'Sales & Licensing'
-        );
-
-      });
-
-
-      /*
-       * Reset Turnstile
-       */
-
-      if (
-        window.turnstile &&
-        typeof window.turnstile.reset === 'function'
-      ) {
-
-        window.turnstile.reset();
-
-      }
-
-
-    } catch (error) {
-
-      console.error(
-        'Contact form error:',
-        error
-      );
-
-
-      setStatus(
-        error.message ||
-        'Unable to send your message. Please try again.',
-        'error'
-      );
-
-
-      /*
-       * Turnstile tokens are single-use.
-       * Reset it after an unsuccessful attempt.
-       */
-
-      if (
-        window.turnstile &&
-        typeof window.turnstile.reset === 'function'
-      ) {
-
-        window.turnstile.reset();
-
-      }
-
-
-    } finally {
-
-      submitButton.disabled = false;
-
-      submitButton.textContent =
-        'Submit Message';
-
-    }
-
-  });
-
-});
+);
