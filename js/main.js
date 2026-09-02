@@ -70,7 +70,14 @@ async function loadSections() {
     SECTIONS.map(async name => {
       try {
         const res = await fetch(`./sections/${name}.html`);
-        return res.ok ? await res.text() : '';
+        if (!res.ok) {
+          console.error(
+            `Failed to load section "${name}": ${res.status} ${res.statusText}`
+          );
+          return '';
+        }
+
+        return await res.text();
       } catch {
         return '';
       }
@@ -98,6 +105,9 @@ async function loadSections() {
   if (typeof initScrollSpy === 'function') initScrollSpy();
   if (typeof initIntroCanvas === 'function') initIntroCanvas();
   if (typeof initTerminal === 'function') initTerminal();
+
+  // Tell dynamically loaded components that the sections now exist.
+  window.dispatchEvent(new CustomEvent('sectionsLoaded'));
 }
 
 /* ── 6. NEURAL MESH CANVAS BACKGROUND ── */

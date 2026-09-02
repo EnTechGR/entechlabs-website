@@ -1,154 +1,244 @@
-document.addEventListener(
-  'DOMContentLoaded',
-  () => {
+/*
+ * ============================================================
+ * ENTECH LABS — CONTACT FORM
+ * ============================================================
+ *
+ * The contact section is loaded dynamically by main.js.
+ *
+ * Therefore this script MUST NOT assume that #contact-form
+ * exists when DOMContentLoaded fires.
+ *
+ * main.js dispatches:
+ *
+ *     sectionsLoaded
+ *
+ * after the sections have been inserted into the DOM.
+ *
+ * We initialize the contact functionality only after that.
+ * ============================================================
+ */
 
-    /*
-     * ======================================================
-     * EMAIL COPY LINKS
-     * ======================================================
-     */
+(() => {
+
+  'use strict';
+
+
+  /*
+   * ============================================================
+   * CONFIGURATION
+   * ============================================================
+   */
+
+  const WORKER_URL =
+    'https://api.entechlabs.com';
+
+  const TURNSTILE_SITE_KEY =
+    '0x4AAAAAAEkQSDCdzsLE1A8n';
+
+  const TURNSTILE_ACTION =
+    'contact';
+
+
+  /*
+   * ============================================================
+   * STATE
+   * ============================================================
+   */
+
+  let initialized = false;
+  let turnstileWidgetId = null;
+  let turnstileToken = '';
+
+
+  /*
+   * ============================================================
+   * STATUS
+   * ============================================================
+   */
+
+  function setStatus(form, message, type) {
+
+    const statusElement =
+      form.querySelector('#contact-status') ||
+      form.querySelector('.contact-form-status');
+
+    if (!statusElement) {
+      console.warn(
+        'Contact status element not found.'
+      );
+      return;
+    }
+
+    statusElement.textContent =
+      message;
+
+    statusElement.dataset.status =
+      type || '';
+
+    statusElement.className =
+      `contact-status ${type || ''}`.trim();
+  }
+
+
+  /*
+   * ============================================================
+   * EMAIL COPY LINKS
+   * ============================================================
+   */
+
+  function initializeEmailLinks() {
 
     const emailElements =
       document.querySelectorAll(
         '.ch-val'
       );
 
+    emailElements.forEach((el) => {
 
-    emailElements.forEach(
-      (el) => {
+      /*
+       * Prevent attaching the handler more than once
+       * if sections are reloaded.
+       */
 
-        if (
-          el.href &&
-          el.href.startsWith(
-            'mailto:'
-          )
-        ) {
+      if (
+        el.dataset.emailCopyInitialized ===
+        'true'
+      ) {
+        return;
+      }
 
-          el.addEventListener(
-            'click',
-            async (e) => {
+      if (
+        !el.href ||
+        !el.href.startsWith('mailto:')
+      ) {
+        return;
+      }
 
-              e.preventDefault();
-              e.stopPropagation();
-              e.stopImmediatePropagation();
-
-
-              const emailToCopy =
-                el.href
-                  .replace(
-                    'mailto:',
-                    ''
-                  )
-                  .trim();
+      el.dataset.emailCopyInitialized =
+        'true';
 
 
-              const originalEmail =
-                el.textContent;
+      el.addEventListener(
+        'click',
+        async (e) => {
+
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
 
 
-              if (
-                el.dataset.copying ===
-                'true'
-              ) {
-
-                return;
-
-              }
-
-
-              try {
-
-                await navigator
-                  .clipboard
-                  .writeText(
-                    emailToCopy
-                  );
+          const emailToCopy =
+            el.href
+              .replace(
+                'mailto:',
+                ''
+              )
+              .trim();
 
 
-                el.dataset.copying =
-                  'true';
+          const originalEmail =
+            el.textContent;
 
+
+          if (
+            el.dataset.copying ===
+            'true'
+          ) {
+            return;
+          }
+
+
+          try {
+
+            await navigator
+              .clipboard
+              .writeText(
+                emailToCopy
+              );
+
+
+            el.dataset.copying =
+              'true';
+
+
+            el.textContent =
+              'EMAIL COPIED TO CLIPBOARD';
+
+
+            el.classList.add(
+              'copied'
+            );
+
+
+            setTimeout(
+              () => {
 
                 el.textContent =
-                  'EMAIL COPIED TO CLIPBOARD';
+                  originalEmail;
 
-
-                el.classList.add(
+                el.classList.remove(
                   'copied'
                 );
 
+                delete el.dataset
+                  .copying;
 
-                setTimeout(
-                  () => {
-
-                    el.textContent =
-                      originalEmail;
-
-                    el.classList.remove(
-                      'copied'
-                    );
-
-                    delete el.dataset
-                      .copying;
-
-                  },
-
-                  2000
-                );
+              },
+              2000
+            );
 
 
-              } catch (err) {
+          } catch (err) {
 
-                console.error(
-                  'Copy failed:',
-                  err
-                );
+            console.error(
+              'Copy failed:',
+              err
+            );
 
+
+            el.textContent =
+              'FAILED TO COPY';
+
+
+            setTimeout(
+              () => {
 
                 el.textContent =
-                  'FAILED TO COPY';
+                  originalEmail;
+
+              },
+              2000
+            );
+
+          }
+
+        },
+        true
+      );
+
+    });
+
+  }
 
 
-                setTimeout(
-                  () => {
+  /*
+   * ============================================================
+   * TURNSTILE
+   * ============================================================
+   */
 
-                    el.textContent =
-                      originalEmail;
+  function initializeTurnstile(form) {
 
-                  },
-
-                  2000
-                );
-
-              }
-
-            },
-
-            true
-          );
-
-        }
-
-      }
-    );
-
-
-    /*
-     * ======================================================
-     * CONTACT FORM
-     * ======================================================
-     */
-
-    const form =
-      document.querySelector(
-        '.cf'
+    const container =
+      form.querySelector(
+        '.cf-turnstile'
       );
 
 
-    if (!form) {
+    if (!container) {
 
-      console.warn(
-        'Contact form not found.'
+      console.error(
+        'Turnstile container not found.'
       );
 
       return;
@@ -157,7 +247,329 @@ document.addEventListener(
 
 
     /*
-     * Inquiry type chips
+     * Avoid rendering the same widget twice.
+     */
+
+    if (
+      turnstileWidgetId !== null
+    ) {
+
+      return;
+
+    }
+
+
+    /*
+     * Wait for the Turnstile API.
+     */
+
+    if (
+      !window.turnstile
+    ) {
+
+      console.warn(
+        'Turnstile API not ready yet. Retrying...'
+      );
+
+
+      setTimeout(
+        () => {
+          initializeTurnstile(form);
+        },
+        250
+      );
+
+
+      return;
+
+    }
+
+
+    /*
+     * Explicit Turnstile rendering.
+     */
+
+    window.turnstile.ready(
+      () => {
+
+        /*
+         * The form might have been replaced while
+         * Turnstile was loading.
+         */
+
+        if (
+          !document.body.contains(form)
+        ) {
+
+          console.warn(
+            'Contact form is no longer in the document.'
+          );
+
+          return;
+
+        }
+
+
+        /*
+         * Don't render if another initialization
+         * happened while waiting.
+         */
+
+        if (
+          turnstileWidgetId !== null
+        ) {
+
+          return;
+
+        }
+
+
+        try {
+
+          turnstileWidgetId =
+            window.turnstile.render(
+              container,
+              {
+
+                sitekey:
+                  TURNSTILE_SITE_KEY,
+
+                action:
+                  TURNSTILE_ACTION,
+
+
+                callback:
+                  (token) => {
+
+                    turnstileToken =
+                      token;
+
+                    console.log(
+                      'Turnstile verification successful.'
+                    );
+
+                  },
+
+
+                'expired-callback':
+                  () => {
+
+                    turnstileToken =
+                      '';
+
+                    console.warn(
+                      'Turnstile token expired.'
+                    );
+
+                  },
+
+
+                'error-callback':
+                  (errorCode) => {
+
+                    turnstileToken =
+                      '';
+
+                    console.error(
+                      'Turnstile error:',
+                      errorCode
+                    );
+
+                  }
+
+              }
+            );
+
+
+          console.log(
+            'Turnstile initialized. Widget ID:',
+            turnstileWidgetId
+          );
+
+
+        } catch (error) {
+
+          console.error(
+            'Failed to initialize Turnstile:',
+            error
+          );
+
+        }
+
+      }
+    );
+
+  }
+
+
+  /*
+   * ============================================================
+   * RESET TURNSTILE
+   * ============================================================
+   */
+
+  function resetTurnstile() {
+
+    turnstileToken =
+      '';
+
+
+    if (
+      window.turnstile &&
+      turnstileWidgetId !== null
+    ) {
+
+      try {
+
+        window.turnstile.reset(
+          turnstileWidgetId
+        );
+
+      } catch (error) {
+
+        console.warn(
+          'Turnstile reset failed:',
+          error
+        );
+
+      }
+
+    }
+
+  }
+
+
+  /*
+   * ============================================================
+   * GET TURNSTILE TOKEN
+   * ============================================================
+   */
+
+  function getTurnstileToken() {
+
+    /*
+     * Prefer the callback token.
+     */
+
+    if (
+      turnstileToken
+    ) {
+
+      return turnstileToken;
+
+    }
+
+
+    /*
+     * Fallback to the Turnstile API.
+     */
+
+    if (
+      window.turnstile &&
+      turnstileWidgetId !== null
+    ) {
+
+      try {
+
+        const token =
+          window.turnstile.getResponse(
+            turnstileWidgetId
+          );
+
+
+        if (token) {
+          return token.trim();
+        }
+
+      } catch (error) {
+
+        console.warn(
+          'Could not retrieve Turnstile token:',
+          error
+        );
+
+      }
+
+    }
+
+
+    /*
+     * Final fallback for compatibility.
+     */
+
+    const hiddenInput =
+      document.querySelector(
+        '[name="cf-turnstile-response"]'
+      );
+
+
+    return (
+      hiddenInput?.value?.trim() ||
+      ''
+    );
+
+  }
+
+
+  /*
+   * ============================================================
+   * INITIALIZE CONTACT FORM
+   * ============================================================
+   */
+
+  function initializeContactForm() {
+
+    /*
+     * The sections can be reloaded by the router.
+     * Reset the initialization state so the new form
+     * can be initialized.
+     */
+
+    initialized =
+      false;
+
+    turnstileWidgetId =
+      null;
+
+    turnstileToken =
+      '';
+
+
+    const form =
+      document.getElementById(
+        'contact-form'
+      );
+
+
+    /*
+     * This should now exist because main.js has
+     * already dispatched "sectionsLoaded".
+     */
+
+    if (!form) {
+
+      console.warn(
+        'Contact form not found after sectionsLoaded.'
+      );
+
+      return;
+
+    }
+
+
+    initialized =
+      true;
+
+
+    console.log(
+      'Contact form initialized.'
+    );
+
+
+    /*
+     * ========================================================
+     * INQUIRY TYPE CHIPS
+     * ========================================================
      */
 
     const chips =
@@ -170,93 +582,102 @@ document.addEventListener(
       'Sales & Licensing';
 
 
+    const inquiryTypeInput =
+      form.querySelector(
+        '#inquiry-type'
+      );
+
+
     chips.forEach(
       (chip) => {
 
-        chip.addEventListener('click', () => {
+        chip.addEventListener(
+          'click',
+          () => {
 
-          chips.forEach((item) => {
-            item.classList.remove('on');
-          });
+            chips.forEach(
+              (item) => {
 
-          chip.classList.add('on');
+                item.classList.remove(
+                  'on'
+                );
 
-          selectedInquiryType =
-            chip.dataset.value ||
-            chip.textContent.trim();
+              }
+            );
 
-          const inquiryTypeInput =
-            document.getElementById('inquiry-type');
 
-          if (inquiryTypeInput) {
-            inquiryTypeInput.value =
-              selectedInquiryType;
+            chip.classList.add(
+              'on'
+            );
+
+
+            selectedInquiryType =
+              chip.dataset.value ||
+              chip.textContent.trim();
+
+
+            if (
+              inquiryTypeInput
+            ) {
+
+              inquiryTypeInput.value =
+                selectedInquiryType;
+
+            }
+
           }
-
-        });
+        );
 
       }
     );
 
 
     /*
-     * ======================================================
-     * STATUS MESSAGE
-     * ======================================================
+     * ========================================================
+     * SUBMIT BUTTON
+     * ========================================================
      */
 
     const submitButton =
       form.querySelector(
-        '.btn-send'
+        '#contact-submit'
       );
 
 
-    const statusElement =
-      document.createElement(
-        'div'
+    if (!submitButton) {
+
+      console.error(
+        'Contact submit button not found.'
       );
 
-
-    statusElement.className =
-      'contact-form-status';
-
-
-    statusElement.setAttribute(
-      'role',
-      'status'
-    );
-
-
-    statusElement.setAttribute(
-      'aria-live',
-      'polite'
-    );
-
-
-    submitButton.insertAdjacentElement(
-      'afterend',
-      statusElement
-    );
-
-
-    function setStatus(
-      message,
-      type
-    ) {
-
-      statusElement.textContent =
-        message;
-
-      statusElement.dataset.status =
-        type;
+      return;
 
     }
 
 
     /*
-     * ======================================================
+     * Use the status element already present
+     * in contact.html.
+     */
+
+    const statusElement =
+      form.querySelector(
+        '#contact-status'
+      );
+
+
+    if (statusElement) {
+
+      statusElement.className =
+        'contact-status';
+
+    }
+
+
+    /*
+     * ========================================================
      * FORM SUBMISSION
-     * ======================================================
+     * ========================================================
      */
 
     form.addEventListener(
@@ -280,51 +701,9 @@ document.addEventListener(
 
 
         /*
-         * --------------------------------------------------
-         * READ FORM
-         * --------------------------------------------------
-         */
-
-        const name =
-          document
-            .getElementById(
-              'contact-name'
-            )
-            ?.value
-            ?.trim() || '';
-
-
-        const email =
-          document
-            .getElementById(
-              'contact-email'
-            )
-            ?.value
-            ?.trim() || '';
-
-
-        const message =
-          document
-            .getElementById(
-              'contact-message'
-            )
-            ?.value
-            ?.trim() || '';
-
-
-        const website =
-          document
-            .getElementById(
-              'contact-website'
-            )
-            ?.value
-            ?.trim() || '';
-
-
-        /*
-         * --------------------------------------------------
+         * ----------------------------------------------------
          * HTML5 VALIDATION
-         * --------------------------------------------------
+         * ----------------------------------------------------
          */
 
         if (
@@ -339,26 +718,82 @@ document.addEventListener(
 
 
         /*
-         * --------------------------------------------------
-         * TURNSTILE TOKEN
-         * --------------------------------------------------
+         * ----------------------------------------------------
+         * READ FORM VALUES
+         * ----------------------------------------------------
          */
 
-        const turnstileElement =
-          document.querySelector(
-            '[name="cf-turnstile-response"]'
+        const name =
+          form.querySelector(
+            '#contact-name'
+          )
+            ?.value
+            ?.trim() ||
+          '';
+
+
+        const email =
+          form.querySelector(
+            '#contact-email'
+          )
+            ?.value
+            ?.trim() ||
+          '';
+
+
+        const message =
+          form.querySelector(
+            '#contact-message'
+          )
+            ?.value
+            ?.trim() ||
+          '';
+
+
+        const website =
+          form.querySelector(
+            '#contact-website'
+          )
+            ?.value
+            ?.trim() ||
+          '';
+
+
+        /*
+         * ----------------------------------------------------
+         * HONEYPOT
+         * ----------------------------------------------------
+         *
+         * The Worker also validates this server-side.
+         * We don't display anything to the visitor.
+         * ----------------------------------------------------
+         */
+
+        if (website) {
+
+          console.warn(
+            'Honeypot field populated.'
           );
 
+          return;
 
-        const turnstileToken =
-          turnstileElement
-            ?.value
-            ?.trim() || '';
+        }
 
 
-        if (!turnstileToken) {
+        /*
+         * ----------------------------------------------------
+         * TURNSTILE
+         * ----------------------------------------------------
+         */
+
+        const token =
+          getTurnstileToken();
+
+
+        if (!token) {
 
           setStatus(
+            form,
             'Please complete the security verification and try again.',
             'error'
           );
@@ -369,9 +804,9 @@ document.addEventListener(
 
 
         /*
-         * --------------------------------------------------
-         * UI: SENDING
-         * --------------------------------------------------
+         * ----------------------------------------------------
+         * UI — SENDING
+         * ----------------------------------------------------
          */
 
         submitButton.disabled =
@@ -387,35 +822,25 @@ document.addEventListener(
 
 
         setStatus(
+          form,
           'Sending your message...',
           'sending'
         );
 
 
         /*
-         * --------------------------------------------------
+         * ----------------------------------------------------
          * SEND TO CLOUDFLARE WORKER
-         * --------------------------------------------------
-         *
-         * IMPORTANT:
-         * Replace this URL with your actual
-         * Cloudflare Worker URL.
-         *
-         * Example:
-         *
-         * https://contact-api.entechlabs.com
-         *
-         * or:
-         *
-         * https://your-worker.your-subdomain.workers.dev
-         * --------------------------------------------------
+         * ----------------------------------------------------
          */
 
-        const WORKER_URL =
-          'https://api.entechlabs.com';
-
-
         try {
+
+          console.log(
+            'Submitting contact form to:',
+            WORKER_URL
+          );
+
 
           const response =
             await fetch(
@@ -443,20 +868,23 @@ document.addEventListener(
                     website,
 
                     turnstile_token:
-                      turnstileToken
+                      token
 
                   })
+
               }
             );
 
 
           /*
-           * ------------------------------------------------
+           * --------------------------------------------------
            * READ RESPONSE
-           * ------------------------------------------------
+           * --------------------------------------------------
            */
 
-          let result;
+          let result =
+            {};
+
 
           try {
 
@@ -465,15 +893,23 @@ document.addEventListener(
 
           } catch {
 
-            result = {};
+            result =
+              {};
 
           }
 
 
+          console.log(
+            'Worker response:',
+            response.status,
+            result
+          );
+
+
           /*
-           * ------------------------------------------------
+           * --------------------------------------------------
            * WORKER ERROR
-           * ------------------------------------------------
+           * --------------------------------------------------
            */
 
           if (
@@ -490,36 +926,27 @@ document.addEventListener(
 
 
           /*
-           * ------------------------------------------------
+           * --------------------------------------------------
            * SUCCESS
-           *
-           * This happens ONLY when:
-           *
-           * Browser
-           *   ↓
-           * Worker
-           *   ↓
-           * Turnstile ✓
-           *   ↓
-           * Apps Script ✓
-           *   ↓
-           * GmailApp ✓
-           *   ↓
-           * HTTP success
-           * ------------------------------------------------
+           * --------------------------------------------------
            */
 
           setStatus(
+            form,
             'Message sent successfully. We will get back to you soon.',
             'success'
           );
 
 
+          /*
+           * Reset form fields.
+           */
+
           form.reset();
 
 
           /*
-           * Restore default inquiry type.
+           * Restore inquiry type.
            */
 
           chips.forEach(
@@ -533,7 +960,9 @@ document.addEventListener(
           );
 
 
-          if (chips[0]) {
+          if (
+            chips[0]
+          ) {
 
             chips[0].classList.add(
               'on'
@@ -546,28 +975,21 @@ document.addEventListener(
             'Sales & Licensing';
 
 
-          /*
-           * Reset Turnstile.
-           */
-
           if (
-            window.turnstile
+            inquiryTypeInput
           ) {
 
-            try {
-
-              window.turnstile.reset();
-
-            } catch (error) {
-
-              console.warn(
-                'Turnstile reset failed:',
-                error
-              );
-
-            }
+            inquiryTypeInput.value =
+              'Sales & Licensing';
 
           }
+
+
+          /*
+           * Turnstile tokens are single-use.
+           */
+
+          resetTurnstile();
 
 
         } catch (error) {
@@ -579,6 +1001,7 @@ document.addEventListener(
 
 
           setStatus(
+            form,
             error.message ||
             'We could not send your message. Please try again later.',
             'error'
@@ -586,29 +1009,11 @@ document.addEventListener(
 
 
           /*
-           * Turnstile tokens are
-           * generally single-use.
-           * Reset after a failed submission.
+           * A failed Turnstile submission should
+           * receive a fresh token.
            */
 
-          if (
-            window.turnstile
-          ) {
-
-            try {
-
-              window.turnstile.reset();
-
-            } catch (resetError) {
-
-              console.warn(
-                'Turnstile reset failed:',
-                resetError
-              );
-
-            }
-
-          }
+          resetTurnstile();
 
 
         } finally {
@@ -624,5 +1029,84 @@ document.addEventListener(
       }
     );
 
+
+    /*
+     * ========================================================
+     * INITIALIZE TURNSTILE AFTER FORM EXISTS
+     * ========================================================
+     */
+
+    initializeTurnstile(
+      form
+    );
+
   }
-);
+
+
+  /*
+   * ============================================================
+   * SECTIONS LOADED EVENT
+   * ============================================================
+   *
+   * main.js dispatches this AFTER it inserts the sections.
+   * ============================================================
+   */
+
+  window.addEventListener(
+    'sectionsLoaded',
+    () => {
+
+      console.log(
+        'sectionsLoaded received by contact.js'
+      );
+
+
+      initializeEmailLinks();
+
+      initializeContactForm();
+
+    }
+  );
+
+
+  /*
+   * ============================================================
+   * INITIAL PAGE LOAD
+   * ============================================================
+   *
+   * In case sectionsLoaded was dispatched before this script
+   * was ready, check once after DOMContentLoaded.
+   * ============================================================
+   */
+
+  document.addEventListener(
+    'DOMContentLoaded',
+    () => {
+
+      /*
+       * If main.js has already loaded the sections,
+       * initialize immediately.
+       */
+
+      if (
+        document.getElementById(
+          'contact-form'
+        )
+      ) {
+
+        console.log(
+          'Contact form already exists at DOMContentLoaded.'
+        );
+
+
+        initializeEmailLinks();
+
+        initializeContactForm();
+
+      }
+
+    }
+  );
+
+
+})();
