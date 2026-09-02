@@ -227,179 +227,59 @@
    * ============================================================
    */
 
-  function initializeTurnstile(form) {
+  function initializeTurnstile() {
+  const turnstileContainer = document.querySelector('.cf-turnstile');
 
-    const container =
-      form.querySelector(
-        '.cf-turnstile'
-      );
+  if (!turnstileContainer) {
+    console.warn('Turnstile container not found.');
+    return;
+  }
 
+  if (!window.turnstile) {
+    console.error('Turnstile API is not available.');
+    return;
+  }
 
-    if (!container) {
+  if (turnstileWidgetId !== null) {
+    return;
+  }
 
-      console.error(
-        'Turnstile container not found.'
-      );
+  try {
+    turnstileWidgetId = window.turnstile.render(
+      turnstileContainer,
+      {
+        sitekey: TURNSTILE_SITE_KEY,
+        action: 'contact',
 
-      return;
-
-    }
-
-
-    /*
-     * Avoid rendering the same widget twice.
-     */
-
-    if (
-      turnstileWidgetId !== null
-    ) {
-
-      return;
-
-    }
-
-
-    /*
-     * Wait for the Turnstile API.
-     */
-
-    if (
-      !window.turnstile
-    ) {
-
-      console.warn(
-        'Turnstile API not ready yet. Retrying...'
-      );
-
-
-      setTimeout(
-        () => {
-          initializeTurnstile(form);
+        callback: function (token) {
+          console.log('Turnstile token received.');
         },
-        250
-      );
 
+        'expired-callback': function () {
+          console.warn('Turnstile token expired.');
+        },
 
-      return;
-
-    }
-
-
-    /*
-     * Explicit Turnstile rendering.
-     */
-
-    window.turnstile.ready(
-      () => {
-
-        /*
-         * The form might have been replaced while
-         * Turnstile was loading.
-         */
-
-        if (
-          !document.body.contains(form)
-        ) {
-
-          console.warn(
-            'Contact form is no longer in the document.'
-          );
-
-          return;
-
-        }
-
-
-        /*
-         * Don't render if another initialization
-         * happened while waiting.
-         */
-
-        if (
-          turnstileWidgetId !== null
-        ) {
-
-          return;
-
-        }
-
-
-        try {
-
-          turnstileWidgetId =
-            window.turnstile.render(
-              container,
-              {
-
-                sitekey:
-                  TURNSTILE_SITE_KEY,
-
-                action:
-                  TURNSTILE_ACTION,
-
-
-                callback:
-                  (token) => {
-
-                    turnstileToken =
-                      token;
-
-                    console.log(
-                      'Turnstile verification successful.'
-                    );
-
-                  },
-
-
-                'expired-callback':
-                  () => {
-
-                    turnstileToken =
-                      '';
-
-                    console.warn(
-                      'Turnstile token expired.'
-                    );
-
-                  },
-
-
-                'error-callback':
-                  (errorCode) => {
-
-                    turnstileToken =
-                      '';
-
-                    console.error(
-                      'Turnstile error:',
-                      errorCode
-                    );
-
-                  }
-
-              }
-            );
-
-
-          console.log(
-            'Turnstile initialized. Widget ID:',
-            turnstileWidgetId
-          );
-
-
-        } catch (error) {
-
+        'error-callback': function (errorCode) {
           console.error(
-            'Failed to initialize Turnstile:',
-            error
+            'Turnstile error:',
+            errorCode
           );
-
         }
-
       }
     );
 
+    console.log(
+      'Turnstile initialized. Widget ID:',
+      turnstileWidgetId
+    );
+
+  } catch (error) {
+    console.error(
+      'Turnstile initialization failed:',
+      error
+    );
   }
+}
 
 
   /*
