@@ -12,7 +12,7 @@ const SECTIONS = [
   'products',
   'solutions',
   'docs',
-  'company',
+  //'company',
   //'resources',
   'contact',
 ];
